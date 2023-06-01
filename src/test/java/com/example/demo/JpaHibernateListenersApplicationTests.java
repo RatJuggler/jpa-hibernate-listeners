@@ -77,8 +77,11 @@ class JpaHibernateListenersApplicationTests {
   /**
    * Find the Customer via it's primary key.
    * - postLoad event triggers for Customer and decodes secret.
+   * - postLoad listener triggers and displays Customer (with secret decoded).
    * Find the CustomerLink for the Customer via it's primary key.
-   * - postLoad event triggers for CustomerLink, but no events trigger for Customer.
+   * - NO events trigger for Customer.
+   * - postLoad event triggers for CustomerLink.
+   * - postLoad listener triggers and displays CustomerLink with nested Customer (with secret decoded).
    * PASS: Secret is left decoded.
    */
   private void scenario1() {
@@ -88,24 +91,27 @@ class JpaHibernateListenersApplicationTests {
     log.info("");
     log.info("Find Customer with findById(1L):");
     log.info("--------------------------------");
-    Customer customer = customerRepository.findById(1L);
-    log.info(customer.toString());
+    customerRepository.findById(1L);
     log.info("");
 
     log.info("Find CustomerLink for the same Customer with findById(4L):");
     log.info("----------------------------------------------------------");
-    CustomerLink customerLink = customerLinkRepository.findById(4L);
-    log.info(customerLink.toString());
+    customerLinkRepository.findById(4L);
     log.info("");
   }
 
   /**
    * Find the Customer via it's primary key.
    * - postLoad event triggers for Customer and decodes secret.
+   * - postLoad listener triggers and displays Customer (with secret decoded).
    * Find the CustomerLink for the Customer via the Customer entity.
    * - preUpdate event triggers for Customer and encodes the secret.
-   * - Customer is not flushed to database, postUpdate event is NOT triggered.
+   * - preUpdate listener for Customer is NOT triggered.
+   * - Customer is NOT flushed to database.
+   * - postUpdate event for Customer is NOT triggered.
+   * - postUpdate listener for Customer is NOT triggered.
    * - postLoad event triggers for CustomerLink.
+   * - postLoad listener triggers and displays CustomerLink with nested Customer (with secret encoded).
    * FAILS: Secret is left encoded.
    */
   private void scenario2() {
@@ -116,25 +122,27 @@ class JpaHibernateListenersApplicationTests {
     log.info("Find Customer with findById(1L):");
     log.info("--------------------------------");
     Customer customer = customerRepository.findById(1L);
-    log.info(customer.toString());
     log.info("");
 
     log.info("Find CustomerLink for the same Customer with findByCustomer(customer):");
     log.info("----------------------------------------------------------------------");
-    CustomerLink customerLink = customerLinkRepository.findByCustomer(customer);
-    log.info(customerLink.toString());
+    customerLinkRepository.findByCustomer(customer);
     log.info("");
   }
 
   /**
    * Find the Customer via it's primary key.
    * - postLoad event triggers for Customer and decodes secret.
-   * Find the CustomerLink for the Customer via the Customer entity.
+   * - postLoad listener triggers and displays Customer (with secret decoded).
+   * Find the CustomerLink for the Customer via the Customer entity Id.
    * - preUpdate event triggers for Customer and encodes the secret.
+   * - preUpdate listener triggers and displays Customer (with secret encoded).
    * - Customer is flushed to database.
-   * - postUpdate event trigger for Customer and decodes the secret.
+   * - postUpdate event triggers for Customer and decodes the secret.
+   * - postUpdate listener triggers for Customer and displays Customer (with secret decoded).
    * - postLoad event triggers for CustomerLink.
-   * FAILS: Secret is left decoded at the expense of an unwanted update.
+   * - postLoad listener triggers and displays CustomerLink with nested Customer (with secret decoded).
+   * FAILS: Secret is left decoded at the expense of an unwanted update and encode/decode.
    */
   private void scenario3() {
     log.info("");
@@ -144,13 +152,11 @@ class JpaHibernateListenersApplicationTests {
     log.info("Find Customer with findById(1L):");
     log.info("-------------- -----------------");
     Customer customer = customerRepository.findById(1L);
-    log.info(customer.toString());
     log.info("");
 
     log.info("Find CustomerLink for the same Customer with findByCustomerId(customer.getId()):");
     log.info("--------------------------------------------------------------------------------");
-    CustomerLink customerLink = customerLinkRepository.findByCustomerId(customer.getId());
-    log.info(customerLink.toString());
+    customerLinkRepository.findByCustomerId(customer.getId());
     log.info("");
   }
 
