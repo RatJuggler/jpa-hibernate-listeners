@@ -22,7 +22,7 @@ public class PreEventListener implements PreInsertEventListener, PreUpdateEventL
 
   @Override
   public boolean onPreInsert(PreInsertEvent event) {
-    log.info("OnPreInsert: About to insert from: {}", event.getEntity());
+    log.info("OnPreInsert: About to insert: {} {}", event.getEntity().getClass().getSimpleName(), Arrays.toString(event.getState()));
     if (event.getEntity() instanceof Customer) {
       String decodedSecret = (String) event.getState()[2];
       String encodedSecret = Base64.getEncoder().encodeToString(decodedSecret.getBytes());
@@ -35,7 +35,7 @@ public class PreEventListener implements PreInsertEventListener, PreUpdateEventL
 
   @Override
   public boolean onPreUpdate(PreUpdateEvent event) {
-    log.info("OnPreUpdate: About to update from: {}", event.getEntity());
+    log.info("OnPreUpdate: About to update: {} {}", event.getEntity().getClass().getSimpleName(), Arrays.toString(event.getState()));
     if (event.getEntity() instanceof Customer) {
       String decodedSecret = (String) event.getState()[2];
       String encodedSecret = Base64.getEncoder().encodeToString(decodedSecret.getBytes());
@@ -48,7 +48,7 @@ public class PreEventListener implements PreInsertEventListener, PreUpdateEventL
 
   @Override
   public void onPreLoad(PreLoadEvent event) {
-    log.info("OnPreLoad: About to load to: {}", event.getEntity());
+    log.info("OnPreLoad: About to load: {} {}", event.getEntity().getClass().getSimpleName(), Arrays.toString(event.getState()));
     if (event.getEntity() instanceof Customer) {
       String encodedSecret = (String) event.getState()[2];
       byte[] decodedBytes = Base64.getDecoder().decode(encodedSecret);
