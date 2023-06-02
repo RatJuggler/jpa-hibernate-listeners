@@ -12,7 +12,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 
 @Entity
-@EntityListeners(CustomerLinkJpaEventListener.class)
+// @EntityListeners(CustomerLinkJpaEventListener.class)
 public class CustomerLink {
 
   @Id

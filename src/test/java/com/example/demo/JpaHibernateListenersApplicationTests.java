@@ -18,10 +18,10 @@ class JpaHibernateListenersApplicationTests {
 
   @Autowired
   private EntityManager entityManager;
-  
+
   @Autowired
   private CustomerRepository customerRepository;
-  
+
   @Autowired
   private CustomerLinkRepository customerLinkRepository;
 
@@ -65,23 +65,26 @@ class JpaHibernateListenersApplicationTests {
     populate();
 
     // scenario1();
+    // entityManager.flush();
     // entityManager.clear();
 
     scenario2();
+    entityManager.flush();
     entityManager.clear();
 
     // scenario3();
+    // entityManager.flush();
     // entityManager.clear();
   }
 
   /**
    * Find the Customer via it's primary key.
-   * - postLoad event triggers for Customer and decodes secret.
-   * - postLoad listener triggers and displays Customer (with secret decoded).
+   * - Customer is loaded from database.
+   * - onPreLoad listener triggers for Customer and decodes secret.
    * Find the CustomerLink for the Customer via it's primary key.
    * - NO events trigger for Customer.
-   * - postLoad event triggers for CustomerLink.
-   * - postLoad listener triggers and displays CustomerLink with nested Customer (with secret decoded).
+   * - CustomerLink is loaded from database.
+   * - onPreLoad listener triggers for CustomerLink.
    * PASS: Secret is left decoded.
    */
   private void scenario1() {
@@ -91,28 +94,26 @@ class JpaHibernateListenersApplicationTests {
     log.info("");
     log.info("Find Customer with findById(1L):");
     log.info("--------------------------------");
-    customerRepository.findById(1L);
+    Customer customer = customerRepository.findById(1L);
+    log.info("Loaded: {}", customer);
     log.info("");
 
     log.info("Find CustomerLink for the same Customer with findById(4L):");
     log.info("----------------------------------------------------------");
-    customerLinkRepository.findById(4L);
+    CustomerLink customerLink = customerLinkRepository.findById(4L);
+    log.info("Loaded: {}", customerLink);
     log.info("");
   }
 
   /**
    * Find the Customer via it's primary key.
-   * - postLoad event triggers for Customer and decodes secret.
-   * - postLoad listener triggers and displays Customer (with secret decoded).
+   * - Customer is loaded from database.
+   * - onPreLoad listener triggers for Customer and decodes secret.
    * Find the CustomerLink for the Customer via the Customer entity.
-   * - preUpdate event triggers for Customer and encodes the secret.
-   * - preUpdate listener for Customer is NOT triggered.
-   * - Customer is NOT flushed to database.
-   * - postUpdate event for Customer is NOT triggered.
-   * - postUpdate listener for Customer is NOT triggered.
-   * - postLoad event triggers for CustomerLink.
-   * - postLoad listener triggers and displays CustomerLink with nested Customer (with secret encoded).
-   * FAILS: Secret is left encoded.
+   * - NO events trigger for Customer.
+   * - CustomerLink is loaded from database.
+   * - onPreLoad listener triggers for CustomerLink.
+   * PASS: Secret is left decoded.
    */
   private void scenario2() {
     log.info("");
@@ -122,27 +123,25 @@ class JpaHibernateListenersApplicationTests {
     log.info("Find Customer with findById(1L):");
     log.info("--------------------------------");
     Customer customer = customerRepository.findById(1L);
+    log.info("Loaded: {}", customer);
     log.info("");
 
     log.info("Find CustomerLink for the same Customer with findByCustomer(customer):");
     log.info("----------------------------------------------------------------------");
-    customerLinkRepository.findByCustomer(customer);
+    CustomerLink customerLink = customerLinkRepository.findByCustomer(customer);
+    log.info("Loaded: {}", customerLink);
     log.info("");
   }
 
   /**
    * Find the Customer via it's primary key.
-   * - postLoad event triggers for Customer and decodes secret.
-   * - postLoad listener triggers and displays Customer (with secret decoded).
+   * - Customer is loaded from database.
+   * - onPreLoad listener triggers for Customer and decodes secret.
    * Find the CustomerLink for the Customer via the Customer entity Id.
-   * - preUpdate event triggers for Customer and encodes the secret.
-   * - preUpdate listener triggers and displays Customer (with secret encoded).
-   * - Customer is flushed to database.
-   * - postUpdate event triggers for Customer and decodes the secret.
-   * - postUpdate listener triggers for Customer and displays Customer (with secret decoded).
-   * - postLoad event triggers for CustomerLink.
-   * - postLoad listener triggers and displays CustomerLink with nested Customer (with secret decoded).
-   * FAILS: Secret is left decoded at the expense of an unwanted update and encode/decode.
+   * - NO events trigger for Customer.
+   * - CustomerLink is loaded from database.
+   * - onPreLoad listener triggers for CustomerLink.
+   * PASS: Secret is left decoded.
    */
   private void scenario3() {
     log.info("");
@@ -152,11 +151,13 @@ class JpaHibernateListenersApplicationTests {
     log.info("Find Customer with findById(1L):");
     log.info("-------------- -----------------");
     Customer customer = customerRepository.findById(1L);
+    log.info("Loaded: {}", customer);
     log.info("");
 
     log.info("Find CustomerLink for the same Customer with findByCustomerId(customer.getId()):");
     log.info("--------------------------------------------------------------------------------");
-    customerLinkRepository.findByCustomerId(customer.getId());
+    CustomerLink customerLink = customerLinkRepository.findByCustomerId(customer.getId());
+    log.info("Loaded: {}", customerLink);
     log.info("");
   }
 

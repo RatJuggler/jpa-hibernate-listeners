@@ -30,11 +30,10 @@ public class HibernateIntegrator implements Integrator {
 
     eventListenerRegistry.appendListeners(EventType.PRE_INSERT, preEventListener);
     eventListenerRegistry.appendListeners(EventType.PRE_UPDATE, preEventListener);
+    eventListenerRegistry.appendListeners(EventType.PRE_LOAD, preEventListener);
 
     eventListenerRegistry.appendListeners(EventType.POST_INSERT, postEventListener);
     eventListenerRegistry.appendListeners(EventType.POST_UPDATE, postEventListener);
-
-    eventListenerRegistry.appendListeners(EventType.POST_LOAD, postEventListener);
   }
 
   @Override
